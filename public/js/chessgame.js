@@ -66,6 +66,8 @@ const renderBoard = () => {
 };
 
 const handleMove = (source, target) => {
+	const moveSound = new Audio("/audios/move.mp3");
+	moveSound.play();
 	const move = {
 		from: `${String.fromCharCode(97 + source.col)}${8 - source.row}`,
 		to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`,
@@ -92,6 +94,9 @@ const getPieceUnicode = (piece) => {
 	};
 	return unicodePieces[piece.type] || "";
 };
+
+// Optionally, you could still handle the valid move sound on the client
+
 socket.on("playerRole", function (role) {
 	playerRole = role;
 	renderBoard();
@@ -107,6 +112,96 @@ socket.on("boardState", function (fen) {
 socket.on("move", function (move) {
 	chess.move(move);
 	renderBoard();
+});
+// Ensure no double playing by using a flag or preventing quick replays
+let isPlayingMoveSound = false;
+let isPlayingInvalidMoveSound = false;
+let isPlayingGameEndSound = false;
+let isPlayingCheckSound = false;
+
+socket.on("move", (move) => {
+	// Delay move sound slightly to allow check sound to play first if needed
+	setTimeout(() => {
+		if (!isPlayingMoveSound && !isPlayingCheckSound) {
+			const moveSound = new Audio("/audios/move-self.mp3");
+			moveSound.currentTime = 0;
+			moveSound.play();
+			isPlayingMoveSound = true;
+
+			moveSound.onended = () => {
+				isPlayingMoveSound = false; // Reset flag when sound finishes
+			};
+		}
+	}, 100); // Delay of 100ms to check for inCheck event
+});
+
+socket.on("invalidMove", (move) => {
+	if (!isPlayingInvalidMoveSound) {
+		const invalidMoveSound = new Audio("/audios/illegal-move.mp3");
+		invalidMoveSound.currentTime = 0;
+		invalidMoveSound.play();
+		isPlayingInvalidMoveSound = true;
+
+		invalidMoveSound.onended = () => {
+			isPlayingInvalidMoveSound = false; // Reset flag when sound finishes
+		};
+	}
+});
+
+socket.on("isCheckMate", function (isCheckMate) {
+	if (isCheckMate && !isPlayingGameEndSound) {
+		console.log("Check Mate ho gya Bhai!!!");
+		const gameEndSound = new Audio("/audios/game-end.mp3");
+		gameEndSound.currentTime = 0;
+		gameEndSound.play();
+		isPlayingGameEndSound = true;
+
+		gameEndSound.onended = () => {
+			isPlayingGameEndSound = false; // Reset flag when sound finishes
+		};
+	}
+	renderBoard();
+});
+
+socket.on("inCheck", function (isInCheck) {
+	if (isInCheck && !isPlayingCheckSound) {
+		console.log("Check Hai Bhai!!");
+		const checkSound = new Audio("/audios/move-check.mp3");
+		checkSound.currentTime = 0;
+		checkSound.play();
+		isPlayingCheckSound = true;
+
+		checkSound.onended = () => {
+			isPlayingCheckSound = false; // Reset flag when sound finishes
+		};
+	}
+	renderBoard();
+});
+
+socket.on("history", function (history) {
+	if (history && Array.isArray(history)) {
+		// console.log(history);
+		renderBoard();
+
+		const historyList = document.getElementById("history-list");
+		historyList.innerHTML = "";
+
+		history.forEach((move, index) => {
+			// console.log(`Move ${index + 1} data:`, move);
+
+			const listItem = document.createElement("li");
+
+			// If move is a string, handle it accordingly
+			if (typeof move === "string") {
+				listItem.textContent = `Move ${index + 1}: ${move}`;
+			} else {
+				listItem.textContent = `Move ${index + 1}: Invalid move data`;
+			}
+			historyList.appendChild(listItem);
+		});
+	} else {
+		console.error("Invalid history data received");
+	}
 });
 
 renderBoard();

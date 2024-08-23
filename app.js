@@ -49,6 +49,9 @@ io.on("connection", function (socket) {
 				currentPlayer = chess.turn();
 				io.emit("move", move);
 				io.emit("boardState", chess.fen());
+				io.emit("isCheckMate", chess.isCheckmate());
+				io.emit("inCheck", chess.inCheck());
+				io.emit("history",chess.history())
 			} else {
 				console.log("Invalid move");
 				socket.emit("Invaild move: ", move);
