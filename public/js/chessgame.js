@@ -120,16 +120,18 @@ let isPlayingGameEndSound = false;
 let isPlayingCheckSound = false;
 
 socket.on("move", (move) => {
-	// Delay move sound slightly to allow check sound to play first if needed
 	setTimeout(() => {
 		if (!isPlayingMoveSound && !isPlayingCheckSound) {
+			console.log("" + isPlayingCheckSound + isPlayingMoveSound);
 			const moveSound = new Audio("/audios/move-self.mp3");
 			moveSound.currentTime = 0;
 			moveSound.play();
+			console.log("Move sound played!!");
 			isPlayingMoveSound = true;
 
 			moveSound.onended = () => {
-				isPlayingMoveSound = false; // Reset flag when sound finishes
+				isPlayingMoveSound = false;
+				console.log("Move sound ended"); // Reset flag when sound finishes
 			};
 		}
 	}, 100); // Delay of 100ms to check for inCheck event
@@ -164,15 +166,18 @@ socket.on("isCheckMate", function (isCheckMate) {
 });
 
 socket.on("inCheck", function (isInCheck) {
-	if (isInCheck && !isPlayingCheckSound) {
+	if (isInCheck && !isPlayingCheckSound && !isPlayingMoveSound) {
 		console.log("Check Hai Bhai!!");
 		const checkSound = new Audio("/audios/move-check.mp3");
 		checkSound.currentTime = 0;
 		checkSound.play();
+		console.log("Check sound played!!");
+
 		isPlayingCheckSound = true;
 
-		checkSound.onended = () => {
-			isPlayingCheckSound = false; // Reset flag when sound finishes
+		checkSound.onended = (event) => {
+			isPlayingCheckSound = false;
+			console.log("Not a check sound"); // Reset flag when sound finishes
 		};
 	}
 	renderBoard();
