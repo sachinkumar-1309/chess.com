@@ -52,6 +52,9 @@ io.on("connection", function (socket) {
 				io.emit("isCheckMate", chess.isCheckmate());
 				io.emit("inCheck", chess.inCheck());
 				io.emit("history",chess.history())
+				if (result.captured) {
+					io.emit("capture", result.captured);
+				}
 			} else {
 				console.log("Invalid move");
 				socket.emit("Invaild move: ", move);

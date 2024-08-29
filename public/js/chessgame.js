@@ -118,6 +118,7 @@ let isPlayingMoveSound = false;
 let isPlayingInvalidMoveSound = false;
 let isPlayingGameEndSound = false;
 let isPlayingCheckSound = false;
+let isPlayingCaptureSound = false;
 
 socket.on("move", (move) => {
 	setTimeout(() => {
@@ -181,6 +182,20 @@ socket.on("inCheck", function (isInCheck) {
 		};
 	}
 	renderBoard();
+});
+socket.on("capture", function () {
+	if (!isPlayingCaptureSound) {
+		const captureSound = new Audio("/audios/capture.mp3");
+		captureSound.currentTime = 0;
+		captureSound.play();
+		console.log("Capture sound played!!");
+		isPlayingCaptureSound = true;
+
+		captureSound.onended = () => {
+			isPlayingCaptureSound = false;
+			console.log("Capture sound stopped!!");
+		};
+	}
 });
 
 socket.on("history", function (history) {
