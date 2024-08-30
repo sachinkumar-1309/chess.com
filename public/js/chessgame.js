@@ -143,6 +143,7 @@ socket.on("invalidMove", (move) => {
 		const invalidMoveSound = new Audio("/audios/illegal-move.mp3");
 		invalidMoveSound.currentTime = 0;
 		invalidMoveSound.play();
+		console.log("Invalid move!!")
 		isPlayingInvalidMoveSound = true;
 
 		invalidMoveSound.onended = () => {
@@ -152,11 +153,17 @@ socket.on("invalidMove", (move) => {
 });
 
 socket.on("isCheckMate", function (isCheckMate) {
-	if (isCheckMate && !isPlayingGameEndSound) {
+	if (
+		isCheckMate &&
+		!isPlayingGameEndSound &&
+		!isPlayingCheckSound &&
+		!isPlayingMoveSound
+	) {
 		console.log("Check Mate ho gya Bhai!!!");
 		const gameEndSound = new Audio("/audios/game-end.mp3");
 		gameEndSound.currentTime = 0;
 		gameEndSound.play();
+		console.log("Checkmate sound played!!")
 		isPlayingGameEndSound = true;
 
 		gameEndSound.onended = () => {
@@ -184,7 +191,7 @@ socket.on("inCheck", function (isInCheck) {
 	renderBoard();
 });
 socket.on("capture", function () {
-	if (!isPlayingCaptureSound) {
+	if (!isPlayingCaptureSound && !isPlayingMoveSound) {
 		const captureSound = new Audio("/audios/capture.mp3");
 		captureSound.currentTime = 0;
 		captureSound.play();

@@ -82,10 +82,11 @@
 		<div class="w-full h-screen bg-zinc-900 flex justify-center items-center">
 			<div class="chessboard w-96 h-96 bg-red-800"></div>
 			<div
-				class="text-white ml-5 border border-gray-600 p-3"
-				id="history-container">
-				<h2>Move History</h2>
-				<ul id="history-list"></ul>
+				class="text-white ml-5 border border-gray-600 p3 overflow-y-auto max-h-96 overflow-x-hidden"
+				id="history-container"
+				style="margin-top: 0 !important">
+				<h2 class="text-center mb-2">Move History</h2>
+				<ul id="history-list" class="flex flex-wrap w-[150px] flex-col"></ul>
 			</div>
 		</div>
 		<script
